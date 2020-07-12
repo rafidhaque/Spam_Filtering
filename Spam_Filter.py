@@ -4,6 +4,8 @@ import pandas as pd
 
 import matplotlib.pyplot as plt
 
+import numpy as np
+
 fig = plt.figure(figsize=(7, 5))
 
 import nltk
@@ -13,6 +15,7 @@ nltk.download('punkt')
 from nltk.stem import PorterStemmer
 
 from sklearn.model_selection import KFold
+from sklearn.model_selection import train_test_split
 
 # Getting data through pandas
 my_data = pd.read_csv("spam.csv", delimiter=',', encoding='latin1')
@@ -20,8 +23,8 @@ my_data = pd.read_csv("spam.csv", delimiter=',', encoding='latin1')
 # Printing the length of each sentence.
 
 lis = my_data['v2'].tolist()
-for sentence in lis:
-    print(len(sentence))
+# for sentence in lis:
+#     print(len(sentence))
 
 # Calculating the number of messages in each class.
 
@@ -41,9 +44,9 @@ for label, data in zip(lis1, lis2):
     else:
         missing_data += 1
 
-print(no_of_hams)
-print(no_of_spams)
-print(missing_data)
+# print(no_of_hams)
+# print(no_of_spams)
+# print(missing_data)
 
 # Plotting number of hams and spams into a bar diagram.
 
@@ -73,7 +76,7 @@ for i in list_of_tokens:
     if i == '.':
         list_of_tokens.remove(i)
 
-print(list_of_tokens)
+# print(list_of_tokens)
 
 # Stemming the data.
 # Finding morphological variants of a base word.
@@ -97,8 +100,8 @@ for word_list in list_of_tokenized_sentences:
         temporary_list.append(word)
     stemmed_sentences_list.append(temporary_list)
 
-print(stemmed_list)
-print(stemmed_sentences_list)
+# print(stemmed_list)
+# print(stemmed_sentences_list)
 
 # Using stop words set remove stop words
 
@@ -116,7 +119,7 @@ stop_set = {'then', 'are', 'through', 'yourself', 'each', 'once', 'on', 'further
 stemmed_list = set(stemmed_list)
 stemmed_list = list((stemmed_list.difference(stop_set)))
 
-print(stemmed_list)
+# print(stemmed_list)
 
 # Counting the frequency of each word in the document.
 
@@ -129,7 +132,7 @@ for word_list in stemmed_sentences_list:
         if word in stemmed_list:
             word_frequency_dictionary[word] += 1
 
-print(word_frequency_dictionary)
+# print(word_frequency_dictionary)
 
 # Finding top 100 most frequent word.
 
@@ -140,7 +143,8 @@ top_100_frequent_word_list = []
 for key, value in top_100_frequent_words:
     top_100_frequent_word_list.append(key)
 
-print(top_100_frequent_word_list)
+
+# print(top_100_frequent_word_list)
 
 
 # counts words in a list
@@ -158,7 +162,7 @@ def word_count(lis):
 
 # Creating a Feature Vector matching sentences with top 100 words.
 
-df = pd.DataFrame(index=lis2, columns=top_100_frequent_word_list)
+df = pd.DataFrame(0, index=lis2, columns=top_100_frequent_word_list)
 i = 0
 
 for sentence in stemmed_sentences_list:
@@ -170,26 +174,30 @@ for sentence in stemmed_sentences_list:
 
 # creating feature matrix
 
-print(df['call'].tolist())
+# df = pd.read_csv("df.csv", delimiter=',', encoding='latin1')
 
-features_matrix = []
+# Creating X and y
+
+features_matrix = {}
 for word in top_100_frequent_word_list:
     lis = df[word].tolist()
-    features_matrix.append(lis)
+    features_matrix[word] = lis
 
-print(features_matrix)
+X = pd.DataFrame(features_matrix).to_numpy()
+y = pd.DataFrame({"state": lis1}).to_numpy()
 
-print(features_matrix)
-# Downloading it for later use.
-'''
-from google.colab import files
+# Get Score Method
 
-df.to_csv('df.csv')
-files.download('df.csv')
+def get_score(model, X_train, X_test, y_train, y_test):
+    model.fit(X_train, y_train)
+    return model.score
 
-'''
-
-# 10-Folding
+# K Folding
 
 kf = KFold(n_splits=10)
-kf
+
+for train_index, text_index in kf.split(X):
+    X_train, X_test = X[train_index], X[text_index]
+    y_train, y_test = y[train_index], y[text_index]
+
+
