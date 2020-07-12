@@ -186,11 +186,13 @@ for word in top_100_frequent_word_list:
 X = pd.DataFrame(features_matrix).to_numpy()
 y = pd.DataFrame({"state": lis1}).to_numpy()
 
+
 # Get Score Method
 
 def get_score(model, X_train, X_test, y_train, y_test):
     model.fit(X_train, y_train)
-    return model.score
+    return model.score(X_test, y_test)
+
 
 # K Folding
 
@@ -199,5 +201,3 @@ kf = KFold(n_splits=10)
 for train_index, text_index in kf.split(X):
     X_train, X_test = X[train_index], X[text_index]
     y_train, y_test = y[train_index], y[text_index]
-
-
