@@ -194,7 +194,7 @@ y = np.array(states)
 
 # recall, precision and accuracy
 
-recall, precision, accuracy = 0, 0, 0
+recall, precision, accuracy, score = 0, 0, 0, 0
 
 
 def compute_accuracy(tp, tn, fn, fp):
@@ -219,13 +219,23 @@ for train_index, text_index in kf.split(X):
 
     mnb = MultinomialNB()
     mnb.fit(X_train, y_train)
-    print(mnb.score(X_test, y_test))
+    score += (mnb.score(X_test, y_test))
 
     y_prediction = mnb.predict(X_test)
-    # for i in range(len(y_test)):
-    #     print("Actual=%s, Predicted=%s" % (y_test[i], y_new[i]))
 
     tn, fp, fn, tp = confusion_matrix(y_test, y_prediction).ravel()
-    print(compute_accuracy(tp, tn, fn, fp))
-    print(compute_recall(tp, fn))
-    print(compute_precision(tp, fp))
+    accuracy += (compute_accuracy(tp, tn, fn, fp))
+    recall += (compute_recall(tp, fn))
+    precision += (compute_precision(tp, fp))
+
+# finding average score, recall, precision and accuracy.
+
+score = score / 10
+accuracy = accuracy / 10
+recall = recall / 10
+precision = precision / 10
+
+print(score)
+print(accuracy)
+print(recall)
+print(precision)
