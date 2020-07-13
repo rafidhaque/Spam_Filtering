@@ -219,14 +219,13 @@ for train_index, text_index in kf.split(X):
 
     mnb = MultinomialNB()
     mnb.fit(X_train, y_train)
-    print(mnb)
     print(mnb.score(X_test, y_test))
 
-    y_new = mnb.predict(X_test)
-    for i in range(len(y_test)):
-        print("Actual=%s, Predicted=%s" % (y_test[i], y_new[i]))
+    y_prediction = mnb.predict(X_test)
+    # for i in range(len(y_test)):
+    #     print("Actual=%s, Predicted=%s" % (y_test[i], y_new[i]))
 
-    # tn, fp, fn, tp = confusion_matrix(df.y_test, df.y_prediction).ravel()
-    # print(compute_accuracy(tp, tn, fn, fp))
-    # print(compute_recall(tp, fn))
-    # print(compute_precision(tp, fp))
+    tn, fp, fn, tp = confusion_matrix(y_test, y_prediction).ravel()
+    print(compute_accuracy(tp, tn, fn, fp))
+    print(compute_recall(tp, fn))
+    print(compute_precision(tp, fp))
