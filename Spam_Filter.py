@@ -15,10 +15,7 @@ nltk.download('punkt')
 from nltk.stem import PorterStemmer
 
 from sklearn.model_selection import KFold
-from sklearn.model_selection import train_test_split
-from sklearn.datasets import load_iris
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.linear_model import LogisticRegression
 
 # Getting data through pandas
 my_data = pd.read_csv("spam.csv", delimiter=',', encoding='latin1')
@@ -177,10 +174,6 @@ for sentence in stemmed_sentences_list:
 
 # creating feature matrix
 
-# df = pd.read_csv("df.csv", delimiter=',', encoding='latin1')
-
-# Creating X and y
-
 features_matrix = {}
 for word in top_100_frequent_word_list:
     lis = df[word].tolist()
@@ -193,33 +186,23 @@ for i in lis1:
     else:
         states.append(1)
 
+# Creating X and y
+
 X = pd.DataFrame(features_matrix).to_numpy()
-# y = pd.DataFrame({"state": states}).to_numpy()
 y = np.array(states)
 
+# recall, precision and accuracy
 
-# Get Score Method
-
-def get_score(model, X_train, X_test, y_train, y_test):
-    model.fit(X_train, y_train)
-    return model.score(X_test, y_test)
-
+recall, precision, accuracy = 0
 
 # K Folding
 
 kf = KFold(n_splits=10)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
-lr = LogisticRegression(solver='liblinear', multi_class='ovr')
-lr.fit(X_train, y_train)
-# print(lr.score(X_test, y_test))
-
 for train_index, text_index in kf.split(X):
     X_train, X_test = X[train_index], X[text_index]
     y_train, y_test = y[train_index], y[text_index]
 
-    # print(X_train, X_test, y_train, y_test)
-
     mnb = MultinomialNB()
-    y_pred = mnb.fit(X_train, y_train)
+    mnb.fit(X_train, y_train)
     print(mnb.score(X_test, y_test))
