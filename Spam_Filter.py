@@ -18,6 +18,8 @@ from sklearn.model_selection import KFold
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import confusion_matrix
 
+from sklearn.feature_extraction.text import TfidfTransformer, TfidfVectorizer
+
 # Getting data through pandas
 my_data = pd.read_csv("spam.csv", delimiter=',', encoding='latin1')
 
@@ -191,6 +193,9 @@ for i in lis1:
 
 X = pd.DataFrame(features_matrix).to_numpy()
 y = np.array(states)
+print(len(y))
+
+print(X)
 
 # recall, precision and accuracy
 
@@ -235,7 +240,41 @@ accuracy = accuracy / 10
 recall = recall / 10
 precision = precision / 10
 
-print(score)
-print(accuracy)
-print(recall)
-print(precision)
+# print(score)
+# print(accuracy)
+# print(recall)
+# print(precision)
+
+# TF-IDF
+# feature vector
+
+new_stemmed_sentences_list = []
+for lis in stemmed_sentences_list:
+    strr = ' '.join(lis)
+    new_stemmed_sentences_list.append(strr)
+
+tf_idf_vector = TfidfVectorizer(vocabulary=top_100_frequent_word_list, analyzer='word', token_pattern='[a-zA-Z]+')
+X = tf_idf_vector.fit_transform(new_stemmed_sentences_list).toarray()
+print(len(X))
+
+recall, precision, accuracy, score = 0, 0, 0, 0
+
+for train_index, text_index in kf.split(X):
+    X_train, X_test = X[train_index], X[text_index]
+    y_train, y_test = y[train_index], y[text_index]
+
+    mnb = MultinomialNB()
+    mnb.fit(X_train, y_train)
+    score += (mnb.score(X_test, y_test))
+
+    y_prediction = mnb.predict(X_test)
+
+    tn, fp, fn, tp = confusion_matrix(y_test, y_prediction).ravel()
+    accuracy += (compute_accuracy(tp, tn, fn, fp))
+    recall += (compute_recall(tp, fn))
+    precision += (compute_precision(tp, fp))
+
+print(score/10)
+print(accuracy/10)
+print(recall/10)
+print(precision/10)
