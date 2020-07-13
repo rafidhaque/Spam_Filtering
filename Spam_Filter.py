@@ -16,6 +16,7 @@ from nltk.stem import PorterStemmer
 
 from sklearn.model_selection import KFold
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import confusion_matrix
 
 # Getting data through pandas
 my_data = pd.read_csv("spam.csv", delimiter=',', encoding='latin1')
@@ -193,7 +194,20 @@ y = np.array(states)
 
 # recall, precision and accuracy
 
-recall, precision, accuracy = 0
+recall, precision, accuracy = 0, 0, 0
+
+
+def compute_accuracy(tp, tn, fn, fp):
+    return ((tp + tn) * 100) / float(tp + tn + fn + fp)
+
+
+def compute_recall(tp, fn):
+    return (tp * 100) / float(tp + fn)
+
+
+def compute_precision(tp, fp):
+    return (tp * 100) / float(tp + fp)
+
 
 # K Folding
 
@@ -205,4 +219,14 @@ for train_index, text_index in kf.split(X):
 
     mnb = MultinomialNB()
     mnb.fit(X_train, y_train)
+    print(mnb)
     print(mnb.score(X_test, y_test))
+
+    y_new = mnb.predict(X_test)
+    for i in range(len(y_test)):
+        print("Actual=%s, Predicted=%s" % (y_test[i], y_new[i]))
+
+    # tn, fp, fn, tp = confusion_matrix(df.y_test, df.y_prediction).ravel()
+    # print(compute_accuracy(tp, tn, fn, fp))
+    # print(compute_recall(tp, fn))
+    # print(compute_precision(tp, fp))
